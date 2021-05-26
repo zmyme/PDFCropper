@@ -1,7 +1,7 @@
 # PDFCropper
 
 Automatically remove white borders in pdf/ppt.
-A user mannual written in chinese can be found here: [UserMannual](Usermannual.md)
+A user mannual written in chinese can be found here: [UserMannual](UserMannual.md)
 
 ## Dependencies
 
