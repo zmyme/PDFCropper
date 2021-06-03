@@ -85,8 +85,30 @@ def parse_and_crop(conf):
 # parser.add_argument('--visual', '-v', default=False, action='store_true', help='display cropbox.')
 # parser.add_argument('--mute', '-m', default=False, action='store_true', help='do not display output file path.')
 # args = parser.parse_args()
-
+import os
+import json
 from ui import Loader
+defaults = {
+    "input": "",
+    "output": "",
+    "background_color": "",
+    "border": "0.0",
+    "zoom": "1.0",
+    "thresh": "1.0",
+    "split": "true",
+    "names": "",
+    "visual": "false",
+    "mute": "false"
+}
+config_path = 'config.json'
+if os.path.isfile(config_path):
+    with open(config_path, 'r', encoding='utf-8') as f:
+        updater = json.load(f)
+        defaults.update(updater)
+else:
+    with open(config_path, 'w+', encoding='utf-8') as f:
+        json.dump(defaults, f, ensure_ascii=False, indent=4)
+
 conf = {
         "input": {"name": "源文件", "type": "readfile", "extension": ("PDF & PPT", ".pdf .pptx")},
         "output": {"name": "保存路径", "type": "savefile"},
@@ -99,6 +121,10 @@ conf = {
         "visual": {"name": "显示裁切框", "type": "str", "default": "false"},
         "mute": {"name": "显示保存文件", "type": "str", "default": "false"},
     }
+
+# write defaults.
+for key in defaults:
+    conf[key]['default'] = defaults[key]
 root = tk.Tk()
 Loader(master=root, conf=conf, execution=parse_and_crop, title="PDF/PPT自动裁边")
 root.mainloop()

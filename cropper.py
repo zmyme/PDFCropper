@@ -46,7 +46,7 @@ def crop(args):
         print('convert {0} to {1}'.format(infile, inbase + '.pdf'))
         slides.SaveAs(inbase + '.pdf', 32)
         slides.close()
-        powerpoint.Quit()
+        # powerpoint.Quit()
         # read comments.
         ppt = Presentation(infile)
         slides = ppt.slides
