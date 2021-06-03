@@ -29,7 +29,7 @@ def text_on_image(img, text, pos, size=16, color='#000000'):
     return img
 
 class Loader(tk.Frame):
-    def __init__(self, master=None, conf={}, execution=None, title=None):
+    def __init__(self, master=None, conf={}, execution=None, title=None, help_msg=None):
         super().__init__(master)
         self.master = master
         self.conf = conf
@@ -44,7 +44,7 @@ class Loader(tk.Frame):
         # self.font = tk.Font(family='', size=40,weight='',slant='',underline='',overstrike='')
         if self.title is not None:
             self.master.title(self.title)
-    
+        self.help_msg = help_msg
     def add_resource(self, obj, name):
         if name in self.resources:
             print('Name [{0}] Repeated.'.format(name))
@@ -137,6 +137,12 @@ class Loader(tk.Frame):
                 conf[name] = self.resources[key].get()
         self.execution(conf)
     
+    def clear(self):
+        self.resources['textbox_log'].delete("1.0", 'end')
+    
+    def showhelp(self):
+        print(self.help_msg)
+    
     def create_widgets(self):
         self.rowcount = 0
         for key, value in self.conf.items():
@@ -153,7 +159,7 @@ class Loader(tk.Frame):
             destination = 'entry_' + key
             if dtype in ['readfile', 'savefile', 'directory']:
                 extension = value.get('extension', None)
-                initialfile = default
+                initialfile = value.get('initial', None)
                 args = {
                     "dst": destination,
                     "choose_type": dtype,
@@ -161,7 +167,7 @@ class Loader(tk.Frame):
                     "initial_file": initialfile
                 }
                 self.add_button(
-                    text="选择文件",
+                    text="<选择文件",
                     command=lambda args=args:self.choose_file(**args),
                     size=(16, 16),
                     layout={"row":self.rowcount, "column": 2, "padx": 5},
@@ -171,7 +177,7 @@ class Loader(tk.Frame):
                 self.conf[key]['type'] = 'str'
             elif dtype == 'color':
                 self.add_button(
-                    text="选择颜色",
+                    text="<选择颜色",
                     command=lambda dst=destination:self.choose_color(dst),
                     size=(16, 16),
                     layout={"row":self.rowcount, "column": 2, "padx": 5},
@@ -181,15 +187,29 @@ class Loader(tk.Frame):
 
             self.rowcount += 1
         self.add_button(
-            text="         裁剪           ",
+            text="清空输出>",
+            command=self.clear,
+            size=(16, 16),
+            layout={"row":self.rowcount-2, "column": 2, "pady": 5, "sticky": "e"},
+            name='clear_output'
+        )
+        self.add_button(
+            text="显示帮助>",
+            command=self.showhelp,
+            size=(16, 16),
+            layout={"row":self.rowcount-1, "column": 2, "pady": 5, "sticky": "e"},
+            name='show_help'
+        )
+        self.add_button(
+            text="        开始裁剪        ",
             command=self.execute,
             size=(16, 16),
-            layout={"row":self.rowcount, "column": 0, "columnspan": 2, "pady": 5},
+            layout={"row":self.rowcount, "column": 0, "columnspan": "3", "pady": 5},
             name='execute_final'
         )
         self.add_textbox(
             width=40, 
-            layout={"row":0, "column": 3, "rowspan": self.rowcount, "padx": 5, "pady": 0},
+            layout={"row":0, "column": 3, "rowspan": self.rowcount + 1, "padx": 5, "pady": 5, "sticky": "ns"},
             name="textbox_log"
         )
         sys.stdout = StdSimulator(self.resources['textbox_log'])

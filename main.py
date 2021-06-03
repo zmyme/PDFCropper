@@ -85,13 +85,15 @@ def parse_and_crop(conf):
 # parser.add_argument('--visual', '-v', default=False, action='store_true', help='display cropbox.')
 # parser.add_argument('--mute', '-m', default=False, action='store_true', help='do not display output file path.')
 # args = parser.parse_args()
+
+
 import os
 import json
 from ui import Loader
 defaults = {
     "input": "",
     "output": "",
-    "background_color": "",
+    "background_color": "255,255,255",
     "border": "0.0",
     "zoom": "1.0",
     "thresh": "1.0",
@@ -111,7 +113,7 @@ else:
 
 conf = {
         "input": {"name": "源文件", "type": "readfile", "extension": ("PDF & PPT", ".pdf .pptx")},
-        "output": {"name": "保存路径", "type": "savefile"},
+        "output": {"name": "保存路径", "type": "savefile", "initial": "output.pdf"},
         "background_color": {"name": "背景颜色", "type": "color", "default": "255,255,255"},
         "border": {"name": "留白", "type": "str", "default": "0.0"},
         "zoom": {"name": "缩放等级", "type": "str", "default": "1.0"},
@@ -122,9 +124,27 @@ conf = {
         "mute": {"name": "显示保存文件", "type": "str", "default": "false"},
     }
 
+introduction = [
+"==== 使用说明 ====",
+"- 源文件：输入的文件，可以为PDF或者PPT，如果是PPT，会首先自动调用PowerPoint将给定的PPT转变为PDF然后进行裁剪（PPT裁剪第一次需要调用COM对象因此速度稍慢，建议耐心等待，裁切一次后速度会恢复到正常水平",
+"- 保存路径：保存的文件名，仅适用于非拆分模式。如果留空，则保存路径为源文件所在目录，保存的文件名为\"源文件名_crop.pdf\"",
+"- 背景颜色：哪一种颜色会被认为是背景",
+"- 留白：不紧贴有效内容裁切，预留一个给定大小的白边。",
+"- 缩放等级：裁切是基于视觉裁切的，因此裁切过程中会首先渲染PDF，采用默认值即可，更高的缩放会将PDF渲染为更高分辨率的图片从而提高裁剪精度，但计算时间也会相应增加。",
+"- 阈值：像素值差异多少会被认为是前景。",
+"- 拆分：是否将源文件自动拆分为每页一个的单个文件。默认文件名采取下划线+数字命名。如果源文件是PPT且PPT备注不为空，则首先采用PPT的备注作为当前页保存的文件名。",
+"- 页名称：手动指定拆分模式下每一页的名称，具有最高优先级，用逗号分隔。留空则使用默认的文件名或者PPT中备注的文件名。",
+"- 显示裁切框：在右侧的日志区域输出裁切框坐标",
+"- 显示保存文件：显示保存的文件名。",
+]
+help_msg = '\n'.join(introduction)
+
 # write defaults.
 for key in defaults:
     conf[key]['default'] = defaults[key]
 root = tk.Tk()
-Loader(master=root, conf=conf, execution=parse_and_crop, title="PDF/PPT自动裁边")
+Loader(master=root, conf=conf, execution=parse_and_crop, title="PDF/PPT自动裁边", help_msg=help_msg)
+
+
+print(help_msg)
 root.mainloop()

@@ -16,6 +16,12 @@ def clip(value, min_value, max_value):
             value = max_value
     return value
 
+def parse_workdir(filepath):
+    workdir = '/'.join('/'.join(filepath.split('\\')).split('/')[:-1])
+    if workdir == '':
+        workdir = '.'
+    return workdir
+
 def crop(args):
     infile = args.input
     # process filepath
@@ -31,9 +37,8 @@ def crop(args):
     thresh = args.thresh
 
     # parse working dir.
-    workdir = '/'.join('/'.join(infile.split('\\')).split('/')[:-1])
-    if workdir == '':
-        workdir = '.'
+    inworkdir = parse_workdir(infile)
+    outworkdir = parse_workdir(outfile)
 
     if infile.split('.')[-1].lower() in ['ppt', 'pptx']:
         # lets process pptx.
@@ -119,7 +124,7 @@ def crop(args):
             names = ['{0}_{1}.pdf'.format(outbase, i+1) for i in range(len(pdf))]
         if args.names is not None:
             names = args.names
-            namesfile = os.path.join(workdir, names)
+            namesfile = os.path.join(inworkdir, names)
             if os.path.isfile(namesfile) and names.split('.')[-1] == 'txt':
                 with open(namesfile, 'r', encoding='utf-8') as f:
                     names = f.read()
@@ -131,7 +136,7 @@ def crop(args):
             names = [n + '.pdf' if n[:-4] != '.pdf' else n for n in names]
         if len(names) < len(pdf):
             names += ['{0}_{1}.pdf'.format(outbase, i+1) for i in range(len(names), len(pdf))]
-        names = [os.path.join(workdir, name) for name in names]
+        names = [os.path.join(outworkdir, name) for name in names]
         for i, (name, page) in enumerate(zip(names, pdf)):
             page_pdf = fitz.Document()
             page_pdf.insertPDF(pdf, from_page=i, to_page=i)
